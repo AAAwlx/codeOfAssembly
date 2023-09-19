@@ -30,10 +30,10 @@
          mov cx,5                      ;循环次数 
          mov si,10                     ;除数 
   digit: 
-         xor dx,dx
-         div si
-         mov [bx],dl                   ;保存数位
-         inc bx 
+         xor dx,dx ;清零dx
+         div si ;32位除法用来将余数保存在dx中
+         mov [bx],dl                   ;将dl中的值保存到数组中
+         inc bx ;自增bx,使其，指向下一个位置
          loop digit
          
          ;显示各个数位
