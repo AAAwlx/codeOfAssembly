@@ -6,7 +6,7 @@
          app_lba_start equ 100           ;声明常数（用户程序起始逻辑扇区号）
                                          ;常数的声明不会占用汇编地址
                                     
-SECTION mbr align=16 vstart=0x7c00                                     
+SECTION mbr align=16 vstart=0x7c00;标记程序起始地址，在计算物理内存的时候都会按照+7c00计算                                     
 
          ;设置堆栈段和栈指针 
          mov ax,0      

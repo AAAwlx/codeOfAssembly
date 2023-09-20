@@ -12,10 +12,10 @@ SECTION header vstart=0                     ;定义用户程序头部段
                     dd section.code_1.start ;段地址[0x06] 
     
     realloc_tbl_len dw (header_end-code_1_segment)/4
-                                            ;段重定位表项个数[0x0a]
+                                            ;段重定位表项个数，每个段表占用4个字节[0x0a]
     
     ;段重定位表           
-    code_1_segment  dd section.code_1.start ;[0x0c]
+    code_1_segment  dd section.code_1.start ;[0x0c]表示每一段开头的位置
     code_2_segment  dd section.code_2.start ;[0x10]
     data_1_segment  dd section.data_1.start ;[0x14]
     data_2_segment  dd section.data_2.start ;[0x18]
