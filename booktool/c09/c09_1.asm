@@ -23,7 +23,7 @@ SECTION header vstart=0                     ;定义用户程序头部段
 header_end:                
     
 ;===============================================================================
-SECTION code align=16 vstart=0           ;定义代码段（16字节对齐） 
+SECTION code align=16 vstart=0           ;定义代码段（16字节对齐）该段代码是中断处理程序 
 new_int_0x70:
       push ax
       push bx
@@ -37,11 +37,11 @@ new_int_0x70:
       out 0x70,al
       in al,0x71                         ;读寄存器A
       test al,0x80                       ;测试第7位UIP 
-      jnz .w0                            ;以上代码对于更新周期结束中断来说 
+      jnz .w0                            ;当不在更新周期时循环等待以上代码对于更新周期结束中断来说 
                                          ;是不必要的 
       xor al,al
       or al,0x80
-      out 0x70,al
+      out 0x70,al;设置阻断中断信号
       in al,0x71                         ;读RTC当前时间(秒)
       push ax
 
@@ -65,7 +65,7 @@ new_int_0x70:
       mov es,ax
 
       pop ax
-      call bcd_to_ascii
+      call bcd_to_ascii;将bcd码转化为ascii码
       mov bx,12*160 + 36*2               ;从屏幕上的12行36列开始显示
 
       mov [es:bx],ah
@@ -118,7 +118,7 @@ bcd_to_ascii:                            ;BCD码转ASCII
 ;-------------------------------------------------------------------------------
 start:
       mov ax,[stack_segment]
-      mov ss,ax
+      mov ss,ax;以下两行执行期间处理器禁止中断，保护桟内信息
       mov sp,ss_pointer
       mov ax,[data_segment]
       mov ds,ax
@@ -129,8 +129,8 @@ start:
       mov bx,inst_msg                    ;显示安装信息 
       call put_string
       
-      mov al,0x70
-      mov bl,4
+      mov al,0x70;bios会自动将从片的中断号初始化为0x70
+      mov bl,4;一个中断向量号占两个字，四个字节
       mul bl                             ;计算0x70号中断在IVT中的偏移
       mov bx,ax                          
 
@@ -139,19 +139,19 @@ start:
       push es
       mov ax,0x0000
       mov es,ax
-      mov word [es:bx],new_int_0x70      ;偏移地址。
+      mov word [es:bx],new_int_0x70      ;向原来的中断向量的位置处写入新的中断处理程序的偏移地址。
                                           
       mov word [es:bx+2],cs              ;段地址
       pop es
-
+;0到6位用来指定索引值，最高位第7位用来控制NMI的中断信号能否到达cpu
       mov al,0x0b                        ;RTC寄存器B
-      or al,0x80                         ;阻断NMI 
+      or al,0x80                         ;阻断NMI将最高位,将最高位设置为1
       out 0x70,al
-      mov al,0x12                        ;设置寄存器B，禁止周期性中断，开放更 
+      mov al,0x12                        ;设置寄存器B，禁止周期性中断，开放更新结束中断允许 
       out 0x71,al                        ;新结束后中断，BCD码，24小时制 
 
-      mov al,0x0c
-      out 0x70,al
+      mov al,0x0c;寄存器c记录了中断产生时的情况
+      out 0x70,al;选择要读取的寄存器
       in al,0x71                         ;读RTC寄存器C，复位未决的中断状态
 
       in al,0xa1                         ;读8259从片的IMR寄存器 
@@ -166,7 +166,7 @@ start:
       mov bx,tips_msg                    ;显示提示信息
       call put_string
       
-      mov cx,0xb800
+      mov cx,0xb800;将数据段寄存器指向显示缓冲区
       mov ds,cx
       mov byte [12*160 + 33*2],'@'       ;屏幕第12行，35列
        
@@ -294,7 +294,7 @@ SECTION data align=16 vstart=0
     tips_msg       db 'Clock is now working.',0
                    
 ;===============================================================================
-SECTION stack align=16 vstart=0
+SECTION stack align=16 vstart=0;初始化桟的大小
            
                  resb 256
 ss_pointer:

@@ -139,7 +139,7 @@ put_char:                                ;显示一个字符
          mov sp,stack_end
          
          mov ax,[data_1_segment]          ;设置到用户程序自己的数据段
-         mov ds,ax
+         mov ds,ax;设置后无法再访问到程序头部
 
          mov bx,msg0
          call put_string                  ;显示第一段信息 
@@ -148,7 +148,7 @@ put_char:                                ;显示一个字符
          mov ax,begin
          push ax                          ;可以直接push begin,80386+
          
-         retf                             ;转移到代码段2执行 
+         retf                             ;从桟中弹出一条地址并转移到该地址执行，转移到代码段2执行 
          
   continue:
          mov ax,[es:data_2_segment]       ;段寄存器DS切换到数据段2 
@@ -200,7 +200,7 @@ SECTION data_2 align=16 vstart=0
 ;===============================================================================
 SECTION stack align=16 vstart=0
            
-         resb 256
+         resb 256;分配256个字节的存储空间
 
 stack_end:  
 

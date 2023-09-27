@@ -94,7 +94,6 @@
          
          mov byte [es:0x24],'D'
          mov byte [es:0x25],0x07
-          
    infi: jmp near infi                 ;无限循环
       
   number db 0,0,0,0,0

@@ -134,7 +134,7 @@ calc_segment_base:                       ;计算16位段地址
          add ax,[cs:phy_base]
          adc dx,[cs:phy_base+0x02]
          shr ax,4;右移四位将高四位空出来，将物理地址转换为汇编地址
-         ror dx,4;将dx寄存器中的值由低四位移动到高四位。
+         ror dx,4;循环右移将dx寄存器中的值由低四位移动到高四位。
          and dx,0xf000;使用and指令将低12位清理
          or ax,dx;将dx与ax相加并存入ax
          pop dx
