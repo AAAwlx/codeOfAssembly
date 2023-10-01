@@ -123,10 +123,10 @@ start:
       mov ax,[data_segment]
       mov ds,ax
       
-      mov bx,init_msg                    ;显示初始信息 
+      mov bx,init_msg                    ;显示初始信息
       call put_string
 
-      mov bx,inst_msg                    ;显示安装信息 
+      mov bx,inst_msg                    ;显示安装信息
       call put_string
       
       mov al,0x70;bios会自动将从片的中断号初始化为0x70
