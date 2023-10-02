@@ -11,7 +11,7 @@
          ;计算GDT所在的逻辑段地址 
          mov ax,[cs:gdt_base+0x7c00]        ;低16位 
          mov dx,[cs:gdt_base+0x7c00+0x02]   ;高16位 
-         mov bx,16        
+         mov bx,16        ;实模式下将物理地址转换成为逻辑地址
          div bx            
          mov ds,ax                          ;令DS指向该段以进行操作
          mov bx,dx                          ;段内起始偏移地址 
@@ -37,8 +37,8 @@
                                              
          lgdt [cs: gdt_size+0x7c00]
       
-         in al,0x92                         ;南桥芯片内的端口 
-         or al,0000_0010B
+         in al,0x92                         ;南桥芯片内的端口，从0x92接口读出原本端口中的内容
+         or al,0000_0010B;使用或运算将第二位设置为1
          out 0x92,al                        ;打开A20
 
          cli                                ;保护模式下中断机制尚未建立，应 
@@ -53,7 +53,7 @@
          [bits 32] 
 
     flush:
-         mov cx,00000000000_10_000B         ;加载数据段选择子(0x10)
+         mov cx,00000000000_10_000B         ;加载数据段选择子(0x10)二进制格式
          mov ds,cx
 
          ;以下在屏幕上显示"Protect mode OK." 
