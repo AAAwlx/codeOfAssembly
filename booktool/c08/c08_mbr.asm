@@ -23,7 +23,7 @@ SECTION mbr align=16 vstart=0x7c00;标记程序起始地址，在计算物理内
          ;以下读取程序的起始部分 
          xor di,di
          mov si,app_lba_start            ;程序在硬盘上的起始逻辑扇区号 
-         xor bx,bx                       ;加载到DS:0x0000处 
+         xor bx,bx                       ;加载到DS:0x0000处,ds为基地址，bx中为偏移地址 
          call read_hard_disk_0
       
          ;以下判断整个程序有多大
