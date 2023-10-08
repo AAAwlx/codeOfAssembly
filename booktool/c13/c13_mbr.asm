@@ -86,7 +86,7 @@
          ;读取剩余的扇区
          mov ecx,eax                        ;32位模式下的LOOP使用ECX
          mov eax,core_start_sector
-         inc eax                            ;从下一个逻辑扇区接着读
+         inc eax                            ;从下一个逻辑扇区接着读,32位模式下不用担心ds寻址空间不够导致的地址回卷
    @2:
          call read_hard_disk_0
          inc eax
@@ -98,7 +98,7 @@
          ;建立公用例程段描述符
          mov eax,[edi+0x04]                 ;公用例程代码段起始汇编地址
          mov ebx,[edi+0x08]                 ;核心数据段汇编地址
-         sub ebx,eax
+         sub ebx,eax                        ;段界限=公用例程代码段起始汇编-核心数据段汇编地址-1
          dec ebx                            ;公用例程段界限 
          add eax,edi                        ;公用例程段基地址
          mov ecx,0x00409800                 ;字节粒度的代码段描述符

@@ -273,7 +273,7 @@ set_up_gdt_descriptor:                      ;在GDT内安装一个新的描述�
          mov ebx,core_data_seg_sel          ;切换到核心数据段
          mov ds,ebx
 
-         sgdt [pgdt]                        ;以便开始处理GDT
+         sgdt [pgdt]                        ;从GDTR里获取GDT的地址以及边界等信息，以便开始处理GDT
 
          mov ebx,mem_0_4_gb_seg_sel
          mov es,ebx
@@ -406,10 +406,10 @@ load_relocate_program:                      ;加载并重定位用户程序
          ;以下判断整个程序有多大
          mov eax,[core_buf]                 ;程序尺寸
          mov ebx,eax
-         and ebx,0xfffffe00                 ;使之512字节对齐（能被512整除的数， 
+         and ebx,0xfffffe00                 ;使之512字节对齐（能被512整除的数，若不能被512整除就向上舍入一位 
          add ebx,512                        ;低9位都为0 
          test eax,0x000001ff                ;程序的大小正好是512的倍数吗? 
-         cmovnz eax,ebx                     ;不是。使用凑整的结果 
+         cmovnz eax,ebx                     ;不是。使用凑整的结果 是就用原来eax中程序的大小
       
          mov ecx,eax                        ;实际需要申请的内存数量
          call sys_routine_seg_sel:allocate_memory
@@ -531,9 +531,9 @@ load_relocate_program:                      ;加载并重定位用户程序
 start:
          mov ecx,core_data_seg_sel           ;使ds指向核心数据段 
          mov ds,ecx
-
+         ;打印提示信息
          mov ebx,message_1
-         call sys_routine_seg_sel:put_string
+         call sys_routine_seg_sel:put_string;跳转执行公共例程中的函数
                                          
          ;显示处理器品牌信息 
          mov eax,0x80000002
