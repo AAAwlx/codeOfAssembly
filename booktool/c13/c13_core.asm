@@ -279,16 +279,16 @@ set_up_gdt_descriptor:                      ;在GDT内安装一个新的描述�
          mov es,ebx
 
          movzx ebx,word [pgdt]              ;GDT界限 
-         inc bx                             ;GDT总字节数，也是下一个描述符偏移 
+         inc bx                             ;GDT总字节数，也是下一个描述符偏移 ,inc bx而不是ebx的原因是计算机启动时界限默认0xffff,若给ebx加一则为0x00010000作为第一
          add ebx,[pgdt+2]                   ;下一个描述符的线性地址 
       
          mov [es:ebx],eax
          mov [es:ebx+4],edx
       
-         add word [pgdt],8                  ;增加一个描述符的大小   
+         add word [pgdt],8                  ;gdt的界限增加一个描述符的大小   
       
          lgdt [pgdt]                        ;对GDT的更改生效 
-       
+         ;计算描述符索引值
          mov ax,[pgdt]                      ;得到GDT界限值
          xor dx,dx
          mov bx,8
@@ -437,7 +437,7 @@ load_relocate_program:                      ;加载并重定位用户程序
          mov ecx,0x00409200                 ;字节粒度的数据段描述符
          call sys_routine_seg_sel:make_seg_descriptor
          call sys_routine_seg_sel:set_up_gdt_descriptor
-         mov [edi+0x04],cx                   
+         mov [edi+0x04],cx                   ;将用户程序头部的逻辑地址修改为描述符索引
 
          ;建立程序代码段描述符
          mov eax,edi
@@ -474,7 +474,7 @@ load_relocate_program:                      ;加载并重定位用户程序
          mov [edi+0x08],cx
 
          ;重定位SALT
-         mov eax,[edi+0x04]
+         mov eax,[edi+0x04];头部段的描述符索引
          mov es,eax                         ;es -> 用户程序头部 
          mov eax,core_data_seg_sel
          mov ds,eax
@@ -482,7 +482,7 @@ load_relocate_program:                      ;加载并重定位用户程序
          cld
 
          mov ecx,[es:0x24]                  ;用户程序的SALT条目数
-         mov edi,0x28                       ;用户程序内的SALT位于头部内0x2c处
+         mov edi,0x28                       ;用户程序内的SALT位于头部内0x2c处;两重循环，第一层从c-salt中取出条目，第二层在u-salt之中逐一对比有没有用到
   .b2: 
          push ecx
          push edi
@@ -500,7 +500,7 @@ load_relocate_program:                      ;加载并重定位用户程序
          mov eax,[esi]                      ;若匹配，esi恰好指向其后的地址数据
          mov [es:edi-256],eax               ;将字符串改写成偏移地址 
          mov ax,[esi+4]
-         mov [es:edi-252],ax                ;以及段选择子 
+         mov [es:edi-252],ax                ;以及段选择子
   .b4:
       
          pop ecx
