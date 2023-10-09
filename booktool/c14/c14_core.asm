@@ -382,8 +382,8 @@ SECTION core_data vstart=0                  ;系统核心的数据段
                           dd  return_point
                           dw  core_code_seg_sel
 
-         salt_item_len   equ $-salt_4
-         salt_items      equ ($-salt)/salt_item_len
+         salt_item_len   equ $-salt_4;一条符号表的大小
+         salt_items      equ ($-salt)/salt_item_len;一共有多少条符号定义
 
          message_1        db  '  If you seen this message,that means we '
                           db  'are now in protect mode,and the system '
