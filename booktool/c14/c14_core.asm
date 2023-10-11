@@ -259,7 +259,7 @@ allocate_memory:                            ;分配内存
          retf
 
 ;-------------------------------------------------------------------------------
-set_up_gdt_descriptor:                      ;在GDT内安装一个新的描述符
+set_up_gdt_descriptor:                      ;在GDT内安装一个新的描述符,门描述符安装在全局段描述符之后
                                             ;输入：EDX:EAX=描述符 
                                             ;输出：CX=描述符的选择子
          push eax
@@ -454,9 +454,6 @@ fill_descriptor_in_ldt:                     ;在LDT内安装一个新的描述�
          pop edi
          pop edx
          pop eax
-     
-         ret
-      
 ;------------------------------------------------------------------------------- 
 load_relocate_program:                      ;加载并重定位用户程序
                                             ;输入: PUSH 逻辑扇区号
