@@ -248,9 +248,7 @@ allocate_memory:                            ;分配内存
          mov ecx,[ram_alloc]                ;返回分配的起始地址
 
          mov ebx,eax
-         and ebx,0xfffffffc
-         add ebx,4                          ;强制对齐 
-         test eax,0x00000003                ;下次分配的起始地址最好是4字节对齐
+         and ebx,0xfffffffctcb_chain ;下次分配的起始地址最好是4字节对齐
          cmovnz eax,ebx                     ;如果没有对齐，则强制对齐 
          mov [ram_alloc],eax                ;下次从该地址分配内存
                                             ;cmovcc指令可以避免控制转移 
@@ -414,7 +412,6 @@ SECTION core_data vstart=0                  ;系统核心的数据段
          tcb_chain        dd  0
 
 core_data_end:
-               
 ;===============================================================================
 SECTION core_code vstart=0
 ;-------------------------------------------------------------------------------
