@@ -248,7 +248,7 @@ allocate_memory:                            ;分配内存
          mov ecx,[ram_alloc]                ;返回分配的起始地址
 
          mov ebx,eax
-         and ebx,0xfffffffctcb_chain ;下次分配的起始地址最好是4字节对齐
+         and ebx,0xfffffffc ;下次分配的起始地址最好是4字节对齐
          cmovnz eax,ebx                     ;如果没有对齐，则强制对齐 
          mov [ram_alloc],eax                ;下次从该地址分配内存
                                             ;cmovcc指令可以避免控制转移 
@@ -462,12 +462,12 @@ load_relocate_program:                      ;加载并重定位用户程序
                                             ;输入: PUSH 逻辑扇区号
                                             ;      PUSH 任务控制块基地址
                                             ;输出：无 
-         pushad
+         pushad;将通用寄存器全部入桟
       
          push ds
          push es
       
-         mov ebp,esp                        ;为访问通过堆栈传递的参数做准备
+         mov ebp,esp                        ;为访问通过堆栈传递的参数做准备，ebp可以直接从桟中取出内容，默认基地址为ss寄存器
       
          mov ecx,mem_0_4_gb_seg_sel
          mov es,ecx
@@ -837,7 +837,7 @@ start:
          push dword 50                      ;用户程序位于逻辑50扇区
          push ecx                           ;压入任务控制块起始线性地址 
        
-         call load_relocate_program
+         call load_relocate_program;近地址转移将eip压栈
       
          mov ebx,do_status
          call sys_routine_seg_sel:put_string
