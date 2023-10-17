@@ -370,7 +370,7 @@ terminate_current_task:                     ;终止当前任务
        
   .b1: 
          mov ebx,core_msg0
-         call sys_routine_seg_sel:put_string
+         call sys_routine_seg_sel:put_string;调用
          iretd
       
 sys_routine_end:
@@ -785,7 +785,7 @@ load_relocate_program:                      ;加载并重定位用户程序
          mov word [es:ecx+92],0             ;TSS中的GS=0
 
          pushfd
-         pop edx
+         pop edx;不存在直接读取flag寄存器的指令，使用这种方式读取
          
          mov dword [es:ecx+36],edx          ;EFLAGS
 

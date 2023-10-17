@@ -852,10 +852,10 @@ start:
          push dword [0x08]                  ;调用前的堆栈段选择子
          push dword 0                       ;调用前的esp
 
-         push dword [0x14]                  ;调用前的代码段选择子 
+         push dword [0x14]                   ;调用前的代码段选择子 
          push dword [0x10]                  ;调用前的eip
       
-         retf
+         retf;跳转到用户程序执行
 
 return_point:                               ;用户程序返回点
          mov eax,core_data_seg_sel          ;因为c14.asm是以JMP的方式使用调 
