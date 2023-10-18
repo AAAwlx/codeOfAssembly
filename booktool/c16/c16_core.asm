@@ -927,31 +927,31 @@ start:
          mov ecx,1024                       ;1024个目录项
          mov ebx,0x00020000                 ;页目录的物理地址
          xor esi,esi
-  .b1:
-         mov dword [es:ebx+esi],0x00000000  ;页目录表项清零 
+  .b1:   ;页目录表项清零
+         mov dword [es:ebx+esi],0x00000000   
          add esi,4
          loop .b1
          
          ;在页目录内创建指向页目录自己的目录项
          mov dword [es:ebx+4092],0x00020003 ;目录表最后的一项指向自己
 
-         ;在页目录内创建与线性地址0x00000000对应的目录项
+         ;在页目录内创建与线性地址0x00000000对应的目录项登记页表
          mov dword [es:ebx+0],0x00021003    ;写入目录项（页表的物理地址和属性）物理地址21000,权限位RW可读可写，P表示是否存在      
 
          ;创建与上面那个目录项相对应的页表，初始化页表项 
          mov ebx,0x00021000                 ;页表的物理地址
          xor eax,eax                        ;起始页的物理地址 
          xor esi,esi
-  .b2:       
+  .b2:   ;将每一页的地址填入前256页表中
          mov edx,eax
-         or edx,0x00000003                  ;装配属性                                   
+         or edx,0x00000003                  ;装配性
          mov [es:ebx+esi*4],edx             ;登记页的物理地址
-         add eax,0x1000                     ;下一个相邻页的物理地址 
+         add eax,0x1000                     ;下一个相邻页的物理地址
          inc esi
          cmp esi,256                        ;仅低端1MB内存对应的页才是有效的 
          jl .b2
          
-  .b3:                                      ;其余的页表项置为无效
+  .b3:                                      ;其余的页表项置为无效，置为0
          mov dword [es:ebx+esi*4],0x00000000  
          inc esi
          cmp esi,1024
@@ -962,7 +962,7 @@ start:
          mov cr3,eax
 
          mov eax,cr0
-         or eax,0x80000000
+         or eax,0x80000000                  ;将PG位装配属性
          mov cr0,eax                        ;开启分页机制
 
          ;在页目录内创建与线性地址0x80000000对应的目录项
