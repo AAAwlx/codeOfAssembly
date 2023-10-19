@@ -1,77 +1,26 @@
-#include <iostream>
-#include <stack>
-using namespace std;
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-int chessboard[12][12] = {0};
-
-struct Move {
-    int x, y;
+struct Student {
+    char *name;
+    int age;
 };
 
-int cnt = 0;
-int sum = 0;
-int step[8][2] = {{2, 1},   {1, 2},   {-1, 2}, {-2, 1},
-                  {-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
-
-void PrintChess();
-void Horse(int x,int y);
+void initializeStudent(struct Student *student, const char *name, int age) {
+    student->name = (char *)malloc(strlen(name) + 1);
+    strcpy(student->name, name);
+    student->age = age;
+}
 
 int main() {
-    int i, j;
-    for (i = 0; i < 12; i++) {
-        for (j = 0; j < 12; j++) {
-            if (i == 0 || i == 1 || i == 10 || i == 11 || j == 0 || j == 1 ||
-                j == 10 || j == 11) {
-                chessboard[i][j] = -1;
-            }
-        }
-    }
-
-    chessboard[2][2] = ++cnt;
-    cout << "请输入初始位置" << endl;
-    int x, y;
-    cin >> x;
-    cin >> y;
-    Horse(x+2,y+2);
+    struct Student s1, s2;
+    initializeStudent(&s1, "Tom", 18);
+    initializeStudent(&s2, "Jerry", 28);
+    s1 = s2;
+    printf("s1的姓名: %s 年龄: %d\n", s1.name, s1.age);
+    printf("s2的姓名: %s 年龄: %d\n", s2.name, s2.age);
+    free(s1.name);
+    free(s2.name);
     return 0;
-}
-
-void Horse(int x,int y) {
-    stack<Move> moveStack;
-    Move initialMove = {x, y};
-    moveStack.push(initialMove);
-    while (!moveStack.empty()) {
-        Move currentMove = moveStack.top();
-        moveStack.pop();
-        int x = currentMove.x;
-        int y = currentMove.y;
-        if (cnt >= 64) {
-            sum++;
-            cnt--; 
-            PrintChess();
-            continue;
-        }
-
-        for (int i = 0; i < 8; i++) {
-            int a = x + step[i][0];
-            int b = y + step[i][1];
-            if (chessboard[a][b] == 0) {
-                cnt++;
-                chessboard[a][b] = cnt;
-                Move nextMove = {a, b};
-                moveStack.push(nextMove);
-            }
-        }
-    }
-}
-
-void PrintChess() {
-    cout << "马踏棋盘第 " << sum << "组解为:" << endl;
-    int i, j;
-    for (i = 2; i < 10; i++) {
-        for (j = 2; j < 10; j++) {
-            cout << " " << chessboard[i][j];
-        }
-        cout << endl;
-    }
 }
