@@ -365,12 +365,12 @@ alloc_inst_a_page:                          ;分配一个页，并安装在当�
          
          mov eax,mem_0_4_gb_seg_sel
          mov ds,eax
-         
+         ;以下这段内容通过绕回将页目录开头的地址，之后将后12位作为页目录项中的
          ;检查该线性地址所对应的页表是否存在
          mov esi,ebx
-         and esi,0xffc00000
+         and esi,0xffc00000                 ;与指令只保留最高的十位用来在页表目录中找到页表
          shr esi,20                         ;得到页目录索引，并乘以4 
-         or esi,0xfffff000                  ;页目录自身的线性地址+表内偏移 
+         or esi,0xfffff000                  ;页目录自身的线性地址+表内偏移 ，两次绕回到目录项之中，找到目录表项
 
          test dword [esi],0x00000001        ;P位是否为“1”。检查该线性地址是 
          jnz .b1                            ;否已经有对应的页表
@@ -987,7 +987,7 @@ start:
          
          add dword [pgdt+2],0x80000000      ;GDTR也用的是线性地址 
          
-         lgdt [pgdt]
+         lgdt [pgdt];将gdt的地址也改为分页机制开启后的
         
          jmp core_code_seg_sel:flush        ;刷新段寄存器CS，启用高端线性地址 
                                              
