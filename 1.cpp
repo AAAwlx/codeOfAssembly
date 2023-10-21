@@ -2,25 +2,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct Student {
-    char *name;
-    int age;
+struct structure {
+    int foo;
+    union {
+        int integer;
+        char string[11];
+        void *pointer;
+    } node;
+    short bar;
+    long long baz;
+    int array[7];
 };
-
-void initializeStudent(struct Student *student, const char *name, int age) {
-    student->name = (char *)malloc(strlen(name) + 1);
-    strcpy(student->name, name);
-    student->age = age;
-}
-
-int main() {
-    struct Student s1, s2;
-    initializeStudent(&s1, "Tom", 18);
-    initializeStudent(&s2, "Jerry", 28);
-    s1 = s2;
-    printf("s1的姓名: %s 年龄: %d\n", s1.name, s1.age);
-    printf("s2的姓名: %s 年龄: %d\n", s2.name, s2.age);
-    free(s1.name);
-    free(s2.name);
-    return 0;
+int main()
+{
+    int arr[] = {0x590ff23c, 0x2fbc5a4d, 0x636c6557, 0x20656d6f, 0x58206f74, 0x20545055,
+                 0x6577202c, 0x6d6f636c, 0x6f742065, 0x79695820, 0x4c20756f, 0x78756e69,
+                 0x6f724720, 0x5b207075, 0x33323032, 0x7825005d, 0x636c6557, 0x64fd6d1d};
+    printf("%s", ((struct structure *)arr)->node.string,sizeof());
 }

@@ -365,11 +365,11 @@ alloc_inst_a_page:                          ;分配一个页，并安装在当�
          
          mov eax,mem_0_4_gb_seg_sel
          mov ds,eax
-         ;以下这段内容通过绕回将页目录开头的地址，之后将后12位作为页目录项中的
+         ;以下这段内容通过绕回将页目录开头的地址，之后将后12位作为页目录项中的索引
          ;检查该线性地址所对应的页表是否存在
          mov esi,ebx
          and esi,0xffc00000                 ;与指令只保留最高的十位用来在页表目录中找到页表
-         shr esi,20                         ;得到页目录索引，并乘以4 
+         shr esi,20                         ;得到页目录索引，并乘以4
          or esi,0xfffff000                  ;页目录自身的线性地址+表内偏移 ，两次绕回到目录项之中，找到目录表项
 
          test dword [esi],0x00000001        ;P位是否为“1”。检查该线性地址是 
@@ -383,7 +383,7 @@ alloc_inst_a_page:                          ;分配一个页，并安装在当�
   .b1:
          ;开始访问该线性地址所对应的页表 
          mov esi,ebx
-         shr esi,10
+         shr esi,10                         ;页表在页目录中的位置
          and esi,0x003ff000                 ;或者0xfffff000，因高10位是零 
          or esi,0xffc00000                  ;得到该页表的线性地址
          
@@ -1023,7 +1023,7 @@ start:
          call far [salt_1+256]              ;通过门显示信息(偏移量将被忽略) 
       
          ;为程序管理器的TSS分配内存空间
-         mov ebx,[core_next_laddr]
+         mov ebx,[core_next_laddr];初始可分配的线性地址
          call sys_routine_seg_sel:alloc_inst_a_page
          add dword [core_next_laddr],4096
 
@@ -1031,7 +1031,7 @@ start:
          mov word [es:ebx+0],0              ;反向链=0
 
          mov eax,cr3
-         mov dword [es:ebx+28],eax          ;登记CR3(PDBR)
+         mov dword [es:ebx+28],eax          ;登记CR3(PDBR),cr3中存有当前页目录中映射的地址
 
          mov word [es:ebx+96],0             ;没有LDT。处理器允许没有LDT的任务。
          mov word [es:ebx+100],0            ;T=0
@@ -1047,7 +1047,7 @@ start:
 
          ;任务寄存器TR中的内容是任务存在的标志，该内容也决定了当前任务是谁。
          ;下面的指令为当前正在执行的0特权级任务“程序管理器”后补手续（TSS）。
-         ltr cx
+         ltr cx;将当前任务的tss存入tr
 
          ;现在可认为“程序管理器”任务正执行中
 
