@@ -417,9 +417,9 @@ create_copy_cur_pdir:                       ;创建新页目录，并复制当�
          mov ds,ebx
          mov es,ebx
          
-         call allocate_a_4k_page            
+         call allocate_a_4k_page            ;给任务分配
          mov ebx,eax
-         or ebx,0x00000007
+         or ebx,0x00000007;将低12位改为页目录表的属性
          mov [0xfffffff8],ebx
          
          mov esi,0xfffff000                 ;ESI->当前页目录的线性地址
@@ -687,7 +687,7 @@ fill_descriptor_in_ldt:                     ;在LDT内安装一个新的描述�
          ;将数据段作为用户任务的3特权级固有堆栈 
          mov ebx,[es:esi+0x06]              ;从TCB中取得可用的线性地址
          add dword [es:esi+0x06],0x1000
-         call sys_routine_seg_sel:alloc_inst_a_page
+         call sys_routine_seg_sel:alloc_inst_a_page;为栈分配实际的地址
          
          mov ebx,[es:esi+0x14]              ;从TCB中获取TSS的线性地址
          mov [es:ebx+80],cx                 ;填写TSS的SS域
